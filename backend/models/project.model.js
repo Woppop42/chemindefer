@@ -13,11 +13,13 @@ const projectSchema =  new mongoose.Schema ({
     },
     pages: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Page'
+        ref: 'Page',
+        require: false,
     }],
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User', 
+        require: true,
     }
 })
 

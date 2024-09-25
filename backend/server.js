@@ -7,7 +7,6 @@ const port = 8000;
 
 // permet d'accéder à l'ensemble des méthodes du module express
 const app = express();
-console.log(process.env.MONGO_URI);
 // Connexion du serveur à la bdd 
 connectDB();
 // Middleware permettant d'autoriser les requêtes venant de différents domaines:
@@ -16,6 +15,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended:false }));
 
+// Définition des routes
+app.use('/project', require('./routes/project.route'));
 
 
 // Middleware pour servir les fichiers statiques du build React
