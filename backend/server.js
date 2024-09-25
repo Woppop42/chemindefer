@@ -18,6 +18,7 @@ app.use(express.urlencoded({ extended:false }));
 // Définition des routes
 app.use('/project', require('./routes/project.route'));
 app.use('/user', require('./routes/user.route'));
+app.use('/auth', require('./routes/auth.route'));
 
 
 // Middleware pour servir les fichiers statiques du build React
