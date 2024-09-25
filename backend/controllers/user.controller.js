@@ -58,24 +58,33 @@ module.exports.deleteUser = async (req, res) => {
 module.exports.login = async (req, res) => {
     try 
     {
-        const user = await UserModel.findOne({email: req.params.email});
+        const user = await UserModel.findOne({email: req.body.email});
         if(!user)
         {
-            res.status(400).json({message: "Utilisateur introuvable."});
+            return res.status(400).json({message: "Utilisateur introuvable."});
         }
-        const verifPassword = await bcrypt.compare(req.params.password, user.password);
+        const verifPassword = await bcrypt.compare(req.body.password, user.password);
         if(!verifPassword)
         {
-            res.status(401).json({message: "Mot de passe incorrect."});
+            return res.status(401).json({message: "Mot de passe incorrect."});
         }
         const token = jwt.sign(
             {id: user._id, email: user.email, username: user.username},
             process.env.TOKEN_JWT,
             {expiresIn: '1h'}
         );
-        res.json({ token });
+        return res.status(200).json({ token });
     } catch (err)
     {
-        res.status(500).json({ message: "Erreur serveur."});
+        console.log(err);
+        return res.status(500).json({ message: "Erreur serveur."});
+    }
+}
+module.exports.logout = async (req, res) => {
+    try{
+        res.status(200).json({message: "Utilisateur bien déconnecté."})
+    }catch(err)
+    {
+        res.status(400).json({message: 'Erreur.'})
     }
 }

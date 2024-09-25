@@ -8,16 +8,16 @@ export const AuthProvider = ({children}) => {
     // Etat pour savoir si l'utilisateur est connecté ou non
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    // Connexion de l'utilisateur
-    const login = () => setIsAuthenticated(true);
-
     // Déconnexion
-    const logout = () => setIsAuthenticated(false);
+    const logout = () => {
+        setIsAuthenticated(false);
+        localStorage.removeItem('token');
+    }
 
     // Fourni l'état aux composants enfant
     // l'attribut {children} représente les éléments enfants du contexte d'authentification
     return(
-        <AuthContext.Provider value={{isAuthenticated, login, logout}}>
+        <AuthContext.Provider value={{isAuthenticated, setIsAuthenticated, logout}}>
             
             {children}
         </AuthContext.Provider>

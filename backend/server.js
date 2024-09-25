@@ -10,7 +10,11 @@ const app = express();
 // Connexion du serveur à la bdd 
 connectDB();
 // Middleware permettant d'autoriser les requêtes venant de différents domaines:
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000', 
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true
+  }));
 // Middleware permettant de traiter les données de la request
 app.use(express.json());
 app.use(express.urlencoded({ extended:false }));
@@ -26,11 +30,8 @@ app.use('/auth', require('./routes/auth.route'));
 
 // Route de fallback pour les autres requêtes vers React
 // app.get('*', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
+//      res.sendFile(path.join(__dirname, 'frontend/build', 'index.html'));
 // });
-
-
-
 try{
 
     app.listen(port, () => console.log("le serveur à démarré au port " + port));

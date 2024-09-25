@@ -16,3 +16,5 @@ const verifyToken = (res, req, next) => {
 router.get('/check', verifyToken, (req, res) =>{
     res.json({authenticated: true});
 });
+
+module.exports = router;
