@@ -25,7 +25,8 @@ module.exports.editUser = async (req, res) => {
             {new: true}
         );
         res.status(200).json({message: `${updateUser.username} a bien été mis à jour.`});
-    } catch(err){
+    } catch(err)
+    {
         res.status(400).json({message: "Problème lors de la mise à jour du profil."});
     }
 }
@@ -59,6 +60,7 @@ module.exports.login = async (req, res) => {
     try 
     {
         const user = await UserModel.findOne({email: req.body.email});
+        console.log('Utilisateur trouvé' + user);
         if(!user)
         {
             return res.status(400).json({message: "Utilisateur introuvable."});
@@ -73,7 +75,8 @@ module.exports.login = async (req, res) => {
             process.env.TOKEN_JWT,
             {expiresIn: '1h'}
         );
-        return res.status(200).json({ token });
+        console.log(token);
+        return res.status(201).json({ token, user });
     } catch (err)
     {
         console.log(err);
@@ -86,5 +89,23 @@ module.exports.logout = async (req, res) => {
     }catch(err)
     {
         res.status(400).json({message: 'Erreur.'})
+    }
+}
+module.exports.getProjects = async (req, res) => {
+    try{
+        const user  = await UserModel.findById(req.params.id)
+        .populate({
+            path: 'projects',
+            model: 'Project'
+        }).exec();
+        if(!user)
+        {
+            return res.status(400).json({message: "Utilisateur introuvable."})
+        }
+        return res.status(200).json(user.projects);
+
+    }catch (err)
+    {
+        return res.status(400).json(err);
     }
 }

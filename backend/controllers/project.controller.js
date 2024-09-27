@@ -1,10 +1,21 @@
 const ProjectModel = require('../models/project.model');
+const UserModel = require ('../models/user.model');
 
 module.exports.createProject = async (req, res) => {
     try {
-        if(!req.body.nom)
+        const {nom, user_id} = req.body;
+        if(!nom)
         {
             return res.status(400).json({message: "Veuillez entrer un nom pour le projet."})
+        }
+        if(!user_id)
+        {
+            return res.status(400).json({message: "ID utilisateur requis."})
+        }
+        const userExists = await UserModel.findById(req.body.user_id);
+        if(!userExists)
+        {
+            return res.status(400).json({message: 'Utilisateur introuvable.'})
         }
         const pages = [];
         for(let i = 1; i <= 30; i++)
@@ -20,11 +31,12 @@ module.exports.createProject = async (req, res) => {
             });
         }
         const projet = await ProjectModel.create({
-            nom: req.body.nom,
-            user: req.params.user_id,
+            nom: nom,
+            user: user_id,
             pages: pages
 
         });
+        await UserModel.findByIdAndUpdate(req.body.user_id, { $push: {projects: projet._id}});
         res.status(200).json(projet);
         console.log("Projet correctement créé.");
     }catch(err)
@@ -54,7 +66,19 @@ module.exports.getOneProject = async (req, res) => {
         res.status(400).json({message: "Projet Introuvable."})
     }
 }
-
+// module.exports.getAllProjectFromUser = async(req, res) => {
+//     try{
+//         const projects = await ProjectModel.find({
+//             user: req.params.id
+//         });
+//         console.log('Projets récupérés.');
+//         return res.status(200).json({projects});
+//     }catch (err)
+//     {
+//         console.log(err);
+//         return res.status(400).json({err});
+//     }
+// }
 module.exports.editProject = async (req, res) => {
     try {
         const updatedProject = await ProjectModel.findByIdAndUpdate(

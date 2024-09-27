@@ -10,7 +10,8 @@ const LoginForm = () => {
         password: ''
     });
     const [error, setError] = useState('');
-    const {setIsAuthenticated} = useContext(AuthContext);
+    const {setIsAuthenticated, setUser} = useContext(AuthContext);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({
@@ -18,20 +19,21 @@ const LoginForm = () => {
             [e.target.name]: e.target.value
         });
     };
-
-    const navigate = useNavigate();
-
     const handleSubmit = (e) => {
         e.preventDefault();
         axios.post("http://localhost:8000/user/login", formData)
         .then(res => {
+          const user = res.data.user;
+          const token = res.data.token;
+          setIsAuthenticated(true);
+          setUser(user);
             localStorage.setItem('token', res.data.token);
-            setIsAuthenticated(true);
-            console.log('Utilisateur connecté', res.data);
+            localStorage.setItem('user', JSON.stringify(user));
+            console.log('Utilisateur connecté', user, token);
             navigate('/');
         })
         .catch(err => {
-            setError(err.reponse?.data?.message || "Une erreur est survenue");
+            setError(err.response?.data?.message || "Une erreur est survenue");
             console.log(err);
         })
     }

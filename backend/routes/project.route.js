@@ -1,5 +1,6 @@
 const express = require('express');
-const { createProject, getAllProject, getOneProject, editProject, deleteProject } = require('../controllers/project.controller');
+const { createProject, getAllProject, getOneProject, editProject, deleteProject, getProjects } = require('../controllers/project.controller');
+
 const router = express.Router();
 
 router.post("/createProject", createProject);
