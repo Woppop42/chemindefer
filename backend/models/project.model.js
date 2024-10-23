@@ -33,7 +33,7 @@ const pageSchema = new mongoose.Schema ({
     },
     etatMaq: {
         type: String,
-        enum: ["urgent", "en attente", "fait", "en cours"],
+        enum: ["urgent", "en recherche", "fait", "en cours"],
         required: true
     },
     num: {
