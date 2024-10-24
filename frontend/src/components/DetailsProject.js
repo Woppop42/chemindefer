@@ -10,7 +10,7 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
 } from "@mui/material";
 import { useNavigate, Link, useParams } from "react-router-dom";
 import { AuthContext } from "../contexts/AuthContext";
@@ -60,7 +60,7 @@ const DetailsProjet = () => {
 
     axios
       .put(
-        `http://localhost:8000/project/editProjectPage/${project._id}/page/${pageId}`, 
+        `http://localhost:8000/project/editProjectPage/${project._id}/page/${pageId}`,
         updatedPage,
         { headers: { "Content-Type": "application/json" } }
       )
@@ -80,7 +80,37 @@ const DetailsProjet = () => {
         setError("Une erreur est survenue lors de la mise à jour du projet.");
       });
   };
-
+  const handleDeleteComment = (commentId, pageId) => {
+    axios
+      .delete(
+        `http://localhost:8000/project/deleteComment/${project_id}/${pageId}/${commentId}`
+      )
+      .then((res) => {
+        console.log("Commentaire supprimé avec succès.");
+        setProject((prevProject) => ({
+          // On conserve toutes les propriétés du projet actuel
+          ...prevProject,
+          // On va spécifiquement modifier la liste des pages
+          pages: prevProject.pages.map(
+            (page) =>
+              // Si l'ID de la page correspond à la page dont le commentaire a été supprimé
+              page._id === pageId
+                ? {
+                    // On garde toutes les propriétés de cette page
+                    ...page,
+                    // On met à jour uniquement la liste des commentaires de cette page
+                    comments: page.comments.filter(
+                      (comment) => comment._id !== commentId // On garde tous les commentaires sauf celui qui a été supprimé
+                    ),
+                  }
+                : page // Si l'ID ne correspond pas, on ne change rien pour cette page
+          ),
+        }));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   return (
     <Container>
       <Typography variant="h4" gutterBottom>
@@ -93,17 +123,16 @@ const DetailsProjet = () => {
             <Card>
               <CardContent>
                 <Typography variant="h6">Page {page.num}</Typography>
-
                 {/* État Illustration */}
-                <Typography variant="body1">État Illustration: {page.etatIllu}</Typography>
+                <Typography variant="body1">
+                  État Illustration: {page.etatIllu}
+                </Typography>
                 <FormControl fullWidth>
                   <InputLabel>Illustration</InputLabel>
                   <Select
                     name="etatIllu"
                     value={
-                      formData[page._id]?.etatIllu ||
-                      page.etatIllu ||
-                      "urgent"
+                      formData[page._id]?.etatIllu || page.etatIllu || "urgent"
                     }
                     onChange={(e) => handleChange(e, page._id)}
                   >
@@ -113,7 +142,6 @@ const DetailsProjet = () => {
                     <MenuItem value="fait">Fait</MenuItem>
                   </Select>
                 </FormControl>
-
                 {/* État Maquettage */}
                 <Typography variant="body1" style={{ marginTop: "10px" }}>
                   État Maquettage: {page.etatMaq}
@@ -123,9 +151,7 @@ const DetailsProjet = () => {
                   <Select
                     name="etatMaq"
                     value={
-                      formData[page._id]?.etatMaq ||
-                      page.etatMaq ||
-                      "urgent"
+                      formData[page._id]?.etatMaq || page.etatMaq || "urgent"
                     }
                     onChange={(e) => handleChange(e, page._id)}
                   >
@@ -135,7 +161,6 @@ const DetailsProjet = () => {
                     <MenuItem value="fait">Fait</MenuItem>
                   </Select>
                 </FormControl>
-
                 {/* Bouton de soumission */}
                 <Box mt={2}>
                   <Button
@@ -146,16 +171,35 @@ const DetailsProjet = () => {
                     Mettre à jour
                   </Button>
                 </Box>
-
                 {/* Commentaires */}
                 <Typography variant="body2" style={{ marginTop: "10px" }}>
                   Commentaires: {page.comments.length} commentaire(s)
                 </Typography>
                 {page.comments.map((comment, idx) => (
-                  <Typography key={idx} variant="body2">
-                    - {comment.text} (le{" "}
-                    {new Date(comment.createdAt).toLocaleDateString()})
-                  </Typography>
+                  <Box
+                    key={idx}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="space-between"
+                    style={{ marginTop: "5px" }}
+                  >
+                    <Typography variant="body2">
+                      - {comment.text} (le{" "}
+                      {new Date(comment.createdAt).toLocaleDateString()})
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      size="small"
+                      onClick={() => handleDeleteComment(comment._id, page._id)}
+                      style={{
+                        fontSize: "0.875rem",
+                        marginLeft: "10px",
+                      }}
+                    >
+                      Supprimer
+                    </Button>
+                  </Box>
                 ))}
               </CardContent>
             </Card>

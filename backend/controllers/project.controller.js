@@ -97,26 +97,56 @@ module.exports.deleteProject = async (req, res) => {
     res.status(400).json({ message: "Echec de la suppression du projet." });
   }
 };
-module.exports.editProjectPage = async(req, res) => {
-  try{
+module.exports.editProjectPage = async (req, res) => {
+  try {
     const projet = await ProjectModel.findById(req.params.id);
-    if(!projet)
-    {
-      return res.status(404).json({message: 'Projet introuvable.'});
+    if (!projet) {
+      return res.status(404).json({ message: "Projet introuvable." });
     }
     const page = projet.pages.id(req.params.pageId);
-    if(!page)
-    {
-      return res.status(404).json({message: 'Page introuvable.'});
+    if (!page) {
+      return res.status(404).json({ message: "Page introuvable." });
     }
     // Utilisation de Object.assign() car on accède a un sous-document du model Project
     const newPage = Object.assign(page, req.body);
     await projet.save();
-    res.status(200).json({message: 'Page mise à jour avec succès.'})
+    res.status(200).json({ message: "Page mise à jour avec succès." });
     console.log(newPage);
+  } catch (err) {
+    res.status(400).json({ message: err });
   }
-  catch(err)
-  {
-    res.status(400).json({message: err});
+};
+module.exports.createComment = async (req, res) => {
+  try {
+    const projet = await ProjectModel.findById(req.params.id);
+    const page = projet.pages.id(req.params.pageId);
+    if (!page) {
+      return res.status(400).json({ message: "Page introuvable." });
+    }
+    page.comments.push(req.body);
+    await projet.save();
+    console.log(projet);
+    res.status(200).json({ message: "Commentaire ajouter avec succès." });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ message: "Erreur." });
   }
-}
+};
+module.exports.deleteComment = async (req, res) => {
+  try {
+    const projet = await ProjectModel.findById(req.params.id);
+    const page = projet.pages.id(req.params.pageId);
+    if (!page) {
+      return res.status(400).json({ message: "Page introuvable." });
+    }
+    page.comments.pull(req.params.commentId);
+
+    await projet.save();
+    console.log("Commentaire supprimé avec succès.");
+  } catch (err) {
+    console.log(err);
+    res
+      .status(400)
+      .json({ message: "Erreur lors de la suppression du commentaire." });
+  }
+};
